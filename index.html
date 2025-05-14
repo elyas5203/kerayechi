@@ -48,6 +48,13 @@
             --shadow-md: 0 5px 10px rgba(0, 0, 0, 0.09);
             --shadow-lg: 0 12px 25px rgba(0, 0, 0, 0.12);
             --navbar-height: 65px; 
+
+            /* رنگ‌های اضافی اگر نیاز باشد */
+            --color-error: #e53935; /* قرمز برای خطا */
+            --color-success-dark: #00695c; /* سبز تیره برای موفقیت */
+            --modal-backdrop-color: rgba(0, 0, 0, 0.6); /* برای پس زمینه مودال */
+            --current-primary-variant: #3e5c76; /* یک نوع تیره‌تر از رنگ اصلی برای هدر جدول‌ها و ... */
+            --color-text-on-primary: #ffffff; /* رنگ متن روی پس‌زمینه رنگ اصلی */
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -160,15 +167,7 @@
             margin-bottom: 25px; box-shadow: var(--shadow-md); border: 1px solid var(--current-border-color);
         }
         #date-selector-wrapper h3 { font-size: 1.3em; color: var(--current-primary-color); margin-bottom: 15px; text-align: center; font-weight: 600; }
-        .date-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; }
-        .date-button { 
-            background-color: white; border: 1px solid var(--current-border-color); 
-            padding: 12px 10px; border-radius: var(--border-radius-sm); cursor: pointer; 
-            text-align: center; font-size: 0.95em; font-weight: 500; color: var(--current-text-primary); 
-            transition: all 0.2s ease-in-out; box-shadow: var(--shadow-sm);
-        }
-        .date-button:hover { background-color: var(--current-secondary-color); color: white; border-color: var(--current-secondary-color); transform: scale(1.03); }
-        .date-button.selected { background-color: var(--current-primary-color); color: white; border-color: var(--current-primary-color); font-weight: 700; box-shadow: 0 0 0 2px var(--current-surface-color), 0 0 0 4px var(--current-primary-color); }
+        /* .date-grid is removed, calendar styles will replace it */
 
         #items-display-wrapper { margin-top: 0; } 
         #items-container, #items-for-reservation-container { 
@@ -270,6 +269,93 @@
         #admin-panel-section-dynamic .reserved-items-list li { padding: 2px 0; }
         #admin-panel-section-dynamic .reserved-items-list strong { color: var(--current-secondary-color); }
 
+        /* --- استایل‌های تقویم شمسی --- */
+        #jalali-calendar-container {
+            /* background-color: #fff; ممکن است نیاز به هماهنگی با #date-selector-wrapper داشته باشد */
+            padding: 15px;
+            border-radius: var(--border-radius-sm);
+            /* box-shadow: var(--shadow-sm); این را از date-selector-wrapper به ارث می‌برد */
+            margin-top: 10px; /* فاصله از بالای date-selector-wrapper */
+        }
+        .jalaliCal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--current-border-color);
+        }
+        .jalaliCal-header button {
+            background-color: var(--current-primary-color);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: var(--border-radius-sm);
+            cursor: pointer;
+            font-size: 0.95em;
+            font-family: var(--font-family-main);
+            transition: background-color 0.2s ease;
+        }
+        .jalaliCal-header button:hover {
+            background-color: var(--current-secondary-color);
+        }
+        #jalaliCal-month-year {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: var(--current-text-primary);
+        }
+        .jalaliCal-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: center;
+        }
+        .jalaliCal-table th, .jalaliCal-table td {
+            padding: 10px 5px; /* کمی پدینگ بیشتر */
+            border: 1px solid #e0e0e0; /* کمی مرز واضح‌تر */
+            font-size: 0.95em;
+            height: 40px; /* ارتفاع ثابت برای سلول‌ها */
+            vertical-align: middle;
+        }
+        .jalaliCal-table th {
+            background-color: #f7f7f7; /* پس‌زمینه ملایم برای هدر */
+            color: var(--current-text-secondary);
+            font-weight: 500;
+        }
+        .jalaliCal-table td {
+            cursor: pointer;
+            border-radius: var(--border-radius-sm); /* گردی گوشه برای هر سلول */
+            transition: background-color 0.2s, color 0.2s, transform 0.1s;
+        }
+        .jalaliCal-table td:hover:not(.jalaliCal-disabled-day):not(.jalaliCal-empty-cell) {
+            background-color: var(--current-secondary-color) !important;
+            color: white !important;
+            transform: scale(1.05);
+        }
+        .jalaliCal-current-day {
+            background-color: #e3f2fd; /* آبی بسیار ملایم برای امروز */
+            color: var(--current-primary-color);
+            font-weight: bold;
+            border: 1px solid var(--current-primary-color); /* برجسته کردن امروز */
+        }
+        .jalaliCal-selected-day {
+            background-color: var(--current-primary-color) !important;
+            color: white !important;
+            font-weight: bold;
+            box-shadow: 0 0 0 2px var(--current-surface-color), 0 0 0 3px var(--current-primary-color); /* افکت انتخاب شده مشابه دکمه‌های تاریخ قبلی */
+        }
+        .jalaliCal-disabled-day {
+            color: #b0b0b0;
+            cursor: not-allowed;
+            background-color: #f9f9f9;
+            text-decoration: line-through;
+        }
+        .jalaliCal-empty-cell {
+            background-color: transparent;
+            border: 1px solid transparent; /* برای حفظ چینش */
+            cursor: default;
+        }
+        /* --- پایان استایل‌های تقویم شمسی --- */
+
         @media (max-width: 767px) { 
             body {
                 background-image: var(--mobile-bg-image); 
@@ -302,6 +388,10 @@
 
             #admin-panel-section-dynamic #admin-reservations-container-dynamic { overflow-x: auto; }
             #admin-panel-section-dynamic #admin-reservations-container-dynamic table { min-width: 600px; }
+            .jalaliCal-table th, .jalaliCal-table td { padding: 6px 3px; font-size: 0.85em; height: 35px; }
+            .jalaliCal-header button { padding: 6px 10px; font-size: 0.9em; }
+            #jalaliCal-month-year { font-size: 1.1em; }
+
         }
         @media (min-width: 480px) and (max-width: 767px) { 
              nav.main-nav { height: var(--navbar-height); /* بازگشت به ارتفاع ثابت */}
@@ -321,8 +411,7 @@
             nav.main-nav .nav-group button, nav.main-nav .nav-link-button { padding: 12px 20px; font-size: 1em; }
             .section-title { font-size: 1.9em; }
             #date-selector-wrapper h3 { font-size: 1.4em; }
-            .date-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); }
-            .date-button { font-size: 0.95em; }
+            /* .date-grid is removed */
             .reservation-actions-bar button { flex-grow: 0; }
             #items-container { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
             .item-card { padding: 20px; } .item-card img { height: 200px; } .item-card h3 { font-size: 1.35em; }
@@ -365,8 +454,26 @@
                 <h2 class="section-title" id="reservation-section-title">۱. انتخاب تاریخ رزرو</h2>
                 
                 <div id="date-selector-wrapper" class="hidden">
-                    <div class="date-grid" id="date-grid-container"></div>
-                    <p class="info-message" id="date-selection-prompt-message" style="display:none; margin-top:15px;">لطفاً یک تاریخ از لیست بالا انتخاب کنید.</p>
+                    <!-- HTML تقویم شمسی -->
+                    <div id="jalali-calendar-container">
+                        <div class="jalaliCal-header">
+                            <button id="jalaliCal-prev-month">< ماه قبل</button>
+                            <div id="jalaliCal-month-year"></div>
+                            <button id="jalaliCal-next-month">ماه بعد ></button>
+                        </div>
+                        <table class="jalaliCal-table">
+                            <thead>
+                                <tr>
+                                    <th>ش</th><th>ی</th><th>د</th><th>س</th><th>چ</th><th>پ</th><th>ج</th>
+                                </tr>
+                            </thead>
+                            <tbody id="jalaliCal-calendar-body">
+                                <!-- روزها اینجا توسط جاوااسکریپت رندر می‌شوند -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <!-- <div class="date-grid" id="date-grid-container"></div>  این بخش حذف شده است -->
+                    <p class="info-message" id="date-selection-prompt-message" style="display:none; margin-top:15px;">لطفاً یک تاریخ از تقویم بالا انتخاب کنید.</p>
                 </div>
 
                 <div id="items-display-wrapper" class="hidden">
@@ -430,7 +537,7 @@
         const itemsSelectionTitleFixed = document.getElementById('items-selection-title-sticky');
         const itemsContainer = document.getElementById('items-container');
         const itemsForReservationContainer = document.getElementById('items-for-reservation-container');
-        const dateGridContainer = document.getElementById('date-grid-container');
+        // const dateGridContainer = document.getElementById('date-grid-container'); // این دیگر استفاده نمی‌شود
         const btnProceedToSubmitSticky = document.getElementById('btn-proceed-to-submit-sticky');
         const loadingMessage = document.getElementById('loading-message');
         const errorMessage = document.getElementById('error-message');
@@ -448,11 +555,11 @@
         const mainNav = document.querySelector('nav.main-nav');
         const mainContainer = document.querySelector('.main-container');
 
+        // این تاریخ‌ها از کد اصلی شما گرفته شده‌اند و برای محدوده تقویم استفاده می‌شوند
+        const startDate = new Date(2025, 5, 4); // 4 June 2025 (ماه در JS از 0 شروع می‌شود، 5 = June)
+        const endDate = new Date(2025, 6, 1);   // 1 July 2025 (ماه در JS از 0 شروع می‌شود، 6 = July)
 
-        const startDate = new Date(2025, 5, 4); 
-        const endDate = new Date(2025, 6, 1);   
-
-        let currentSelectedDate = null;
+        let currentSelectedDate = null; // فرمت YYYY-MM-DD میلادی خواهد بود
         let currentCart = {}; 
         let isAdminLoggedIn = false;
         let storedUserInfo = { name: null, phone: null };
@@ -464,6 +571,201 @@
         let currentReservationSubView = ReservationSubView.DATE_SELECTOR;
         let adminPanelElement = null; 
 
+        // --- شروع منطق تقویم شمسی با قابلیت انتخاب روز ---
+        const jalaliCal_jalaliMonths = ["فروردین", "اردیبهشت", "خرداد", "تیر", "مرداد", "شهریور", "مهر", "آبان", "آذر", "دی", "بهمن", "اسفند"];
+
+        const jalaliCal_config = {
+            allowedStartDate: startDate, // استفاده از متغیر startDate تعریف شده در بالا
+            allowedEndDate: endDate,     // استفاده از متغیر endDate تعریف شده در بالا
+            onDateSelectCallback: function(selectedGregorianDateISO) {
+                console.log("تاریخ انتخاب شده در تقویم (میلادی YYYY-MM-DD):", selectedGregorianDateISO);
+                
+                currentSelectedDate = selectedGregorianDateISO; // به‌روزرسانی متغیر اصلی پروژه
+                
+                if(dateSelectionPromptMessage) dateSelectionPromptMessage.style.display = 'none';
+                
+                currentCart = {}; // خالی کردن سبد خرید
+                clearMessages(); // پاک کردن پیام‌های قبلی
+                
+                // بارگذاری اقلام برای تاریخ انتخاب شده. این تابع خودش UI را به نمایش اقلام تغییر می‌دهد
+                fetchItemsForDate(currentSelectedDate); 
+            }
+        };
+
+        let jalaliCal_currentDisplayGregorianDate = new Date(jalaliCal_config.allowedStartDate);
+        let jalaliCal_currentlySelectedCell = null; 
+        let jalaliCal_currentSelectedGregorianISO = null; 
+
+        const jalaliCal_monthYearElem = document.getElementById('jalaliCal-month-year'); 
+        const jalaliCal_calendarBodyElem = document.getElementById('jalaliCal-calendar-body'); 
+        const jalaliCal_prevMonthBtn = document.getElementById('jalaliCal-prev-month'); 
+        const jalaliCal_nextMonthBtn = document.getElementById('jalaliCal-next-month'); 
+
+        function jalaliCal_toJalali(gy, gm, gd) {
+            var g_d_m, jy, jm, jd, gy2, days;
+            g_d_m = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334];
+            if (gy > 1600) { jy = 979; gy -= 1600; } else { jy = 0; gy -= 621; }
+            gy2 = (gm > 2) ? (gy + 1) : gy;
+            days = (365 * gy) + Math.floor((gy2 + 3) / 4) - Math.floor((gy2 + 99) / 100) + Math.floor((gy2 + 399) / 400) - 80 + gd + g_d_m[gm - 1];
+            jy += 33 * Math.floor(days / 12053); days %= 12053;
+            jy += 4 * Math.floor(days / 1461); days %= 1461;
+            if (days > 365) { jy += Math.floor((days - 1) / 365); days = (days - 1) % 365; }
+            jm = (days < 186) ? 1 + Math.floor(days / 31) : 7 + Math.floor((days - 186) / 30);
+            jd = 1 + ((days < 186) ? (days % 31) : ((days - 186) % 30));
+            return { y: jy, m: jm, d: jd };
+        }
+
+        function jalaliCal_toGregorian(jy, jm, jd) {
+            var gy, days, gd, gm, sal_a;
+            if (jy > 979) { gy = 1600; jy -= 979; } else { gy = 621; }
+            days = (365 * jy) + (Math.floor(jy / 33) * 8) + Math.floor(((jy % 33) + 3) / 4) + 78 + jd + ((jm < 7) ? (jm - 1) * 31 : ((jm - 7) * 30) + 186);
+            gy += 400 * Math.floor(days / 146097); days %= 146097;
+            if (days > 36524) { gy += 100 * Math.floor(--days / 36524); days %= 36524; if (days >= 365) days++; }
+            gy += 4 * Math.floor(days / 1461); days %= 1461;
+            if (days > 365) { gy += Math.floor((days - 1) / 365); days = (days - 1) % 365; }
+            gd = days + 1;
+            sal_a = [0, 31, ((gy % 4 === 0 && gy % 100 !== 0) || (gy % 400 === 0)) ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+            for (gm = 0; gm < 13 && gd > sal_a[gm]; gm++) gd -= sal_a[gm];
+            return { y: gy, m: gm, d: gd };
+        }
+
+        function jalaliCal_getFirstDayOfJalaliMonthForDisplay(gregorianDateForMonth) {
+            const jalaliEquiv = jalaliCal_toJalali(gregorianDateForMonth.getFullYear(), gregorianDateForMonth.getMonth() + 1, gregorianDateForMonth.getDate());
+            return jalaliCal_toGregorian(jalaliEquiv.y, jalaliEquiv.m, 1);
+        }
+
+        function jalaliCal_handleDayClick(cellElement, jalaliYear, jalaliMonth, jalaliDay, gregorianDateISO) {
+            if (jalaliCal_currentlySelectedCell) {
+                jalaliCal_currentlySelectedCell.classList.remove('jalaliCal-selected-day');
+            }
+            cellElement.classList.add('jalaliCal-selected-day');
+            jalaliCal_currentlySelectedCell = cellElement;
+            jalaliCal_currentSelectedGregorianISO = gregorianDateISO; 
+
+            if (typeof jalaliCal_config.onDateSelectCallback === 'function') {
+                jalaliCal_config.onDateSelectCallback(gregorianDateISO);
+            }
+        }
+
+        function jalaliCal_render() {
+            if (!jalaliCal_monthYearElem || !jalaliCal_calendarBodyElem) {
+                console.error("المنت‌های ضروری تقویم (هدر ماه/سال یا بدنه) در HTML یافت نشدند.");
+                return;
+            }
+
+            const todayGregorian = new Date();
+            const todayJalali = jalaliCal_toJalali(todayGregorian.getFullYear(), todayGregorian.getMonth() + 1, todayGregorian.getDate());
+
+            const firstDayOfJalaliMonthToDisplayGregorian = jalaliCal_getFirstDayOfJalaliMonthForDisplay(jalaliCal_currentDisplayGregorianDate);
+            const displayJalali = jalaliCal_toJalali(firstDayOfJalaliMonthToDisplayGregorian.y, firstDayOfJalaliMonthToDisplayGregorian.m, firstDayOfJalaliMonthToDisplayGregorian.d);
+            const displayJalaliYear = displayJalali.y;
+            const displayJalaliMonth = displayJalali.m;
+
+            jalaliCal_monthYearElem.innerText = jalaliCal_jalaliMonths[displayJalaliMonth - 1] + " " + displayJalaliYear;
+            jalaliCal_calendarBodyElem.innerHTML = ''; 
+            
+            let daysInJalaliMonth;
+            if (displayJalaliMonth <= 6) { daysInJalaliMonth = 31; } 
+            else if (displayJalaliMonth <= 11) { daysInJalaliMonth = 30; } 
+            else { const kabiseRemainders = [1, 5, 9, 13, 17, 22, 26, 30]; daysInJalaliMonth = kabiseRemainders.includes(displayJalaliYear % 33) ? 30 : 29; }
+
+            const firstDayDateObj = new Date(firstDayOfJalaliMonthToDisplayGregorian.y, firstDayOfJalaliMonthToDisplayGregorian.m - 1, firstDayOfJalaliMonthToDisplayGregorian.d);
+            let firstDayOfWeekIndex = (firstDayDateObj.getDay() + 1) % 7; 
+
+            let dateCounter = 1;
+            for (let i = 0; i < 6; i++) {
+                const row = document.createElement('tr');
+                let rowHasDay = false; 
+                for (let j = 0; j < 7; j++) {
+                    const cell = document.createElement('td');
+                    if (i === 0 && j < firstDayOfWeekIndex) {
+                        cell.classList.add('jalaliCal-empty-cell');
+                    } else if (dateCounter <= daysInJalaliMonth) {
+                        cell.innerText = dateCounter;
+                        rowHasDay = true;
+                        
+                        const currentDayGregorianEquiv = jalaliCal_toGregorian(displayJalaliYear, displayJalaliMonth, dateCounter);
+                        const currentDayGregorianDateObj = new Date(currentDayGregorianEquiv.y, currentDayGregorianEquiv.m - 1, currentDayGregorianEquiv.d);
+                        const currentDayGregorianISO = `${currentDayGregorianEquiv.y}-${String(currentDayGregorianEquiv.m).padStart(2,'0')}-${String(currentDayGregorianEquiv.d).padStart(2,'0')}`;
+
+                        if (dateCounter === todayJalali.d && displayJalaliMonth === todayJalali.m && displayJalaliYear === todayJalali.y) {
+                            cell.classList.add('jalaliCal-current-day');
+                        }
+
+                        // اینجا currentSelectedDate از پروژه اصلی است، اما تقویم از jalaliCal_currentSelectedGregorianISO برای نمایش انتخاب خودش استفاده می‌کند
+                        if (jalaliCal_currentSelectedGregorianISO === currentDayGregorianISO) {
+                            cell.classList.add('jalaliCal-selected-day');
+                            jalaliCal_currentlySelectedCell = cell;
+                        }
+                        
+                        const normalizedCurrentDay = new Date(currentDayGregorianDateObj.getFullYear(), currentDayGregorianDateObj.getMonth(), currentDayGregorianDateObj.getDate());
+                        const normalizedStartDate = new Date(jalaliCal_config.allowedStartDate.getFullYear(), jalaliCal_config.allowedStartDate.getMonth(), jalaliCal_config.allowedStartDate.getDate());
+                        const normalizedEndDate = new Date(jalaliCal_config.allowedEndDate.getFullYear(), jalaliCal_config.allowedEndDate.getMonth(), jalaliCal_config.allowedEndDate.getDate());
+
+                        if (normalizedCurrentDay >= normalizedStartDate && normalizedCurrentDay <= normalizedEndDate) {
+                            (function(currentDayVal, currentMonthVal, currentYearVal, cellElem, gregorianISO) {
+                                cellElem.addEventListener('click', function() {
+                                    jalaliCal_handleDayClick(cellElem, currentYearVal, currentMonthVal, currentDayVal, gregorianISO);
+                                });
+                            })(dateCounter, displayJalaliMonth, displayJalaliYear, cell, currentDayGregorianISO);
+                        } else {
+                            cell.classList.add('jalaliCal-disabled-day');
+                        }
+                        dateCounter++;
+                    } else {
+                        cell.classList.add('jalaliCal-empty-cell');
+                    }
+                    row.appendChild(cell);
+                }
+                if (rowHasDay) { jalaliCal_calendarBodyElem.appendChild(row); }
+                if (dateCounter > daysInJalaliMonth && !rowHasDay && i > 2) { break; }
+            }
+        }
+
+        if (jalaliCal_prevMonthBtn) {
+            jalaliCal_prevMonthBtn.addEventListener('click', () => {
+                const tempJalali = jalaliCal_toJalali(jalaliCal_currentDisplayGregorianDate.getFullYear(), jalaliCal_currentDisplayGregorianDate.getMonth() + 1, 1);
+                let targetJalaliYear = tempJalali.y;
+                let targetJalaliMonth = tempJalali.m - 1;
+                if (targetJalaliMonth < 1) { targetJalaliMonth = 12; targetJalaliYear--; }
+                const prevMonthGregorian = jalaliCal_toGregorian(targetJalaliYear, targetJalaliMonth, 15);
+                jalaliCal_currentDisplayGregorianDate = new Date(prevMonthGregorian.y, prevMonthGregorian.m - 1, prevMonthGregorian.d);
+                jalaliCal_render();
+            });
+        } else { console.warn("دکمه 'ماه قبل' تقویم با ID 'jalaliCal-prev-month' یافت نشد."); }
+
+        if (jalaliCal_nextMonthBtn) {
+            jalaliCal_nextMonthBtn.addEventListener('click', () => {
+                const tempJalali = jalaliCal_toJalali(jalaliCal_currentDisplayGregorianDate.getFullYear(), jalaliCal_currentDisplayGregorianDate.getMonth() + 1, 1);
+                let targetJalaliYear = tempJalali.y;
+                let targetJalaliMonth = tempJalali.m + 1;
+                if (targetJalaliMonth > 12) { targetJalaliMonth = 1; targetJalaliYear++; }
+                const nextMonthGregorian = jalaliCal_toGregorian(targetJalaliYear, targetJalaliMonth, 15);
+                jalaliCal_currentDisplayGregorianDate = new Date(nextMonthGregorian.y, nextMonthGregorian.m - 1, nextMonthGregorian.d);
+                jalaliCal_render();
+            });
+        } else { console.warn("دکمه 'ماه بعد' تقویم با ID 'jalaliCal-next-month' یافت نشد."); }
+
+        function jalaliCalendarInit(selectedDateISO = null) {
+            if (selectedDateISO) { 
+                jalaliCal_currentSelectedGregorianISO = selectedDateISO; // این برای هایلایت کردن در تقویم است
+                const parts = selectedDateISO.split('-');
+                jalaliCal_currentDisplayGregorianDate = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+            } else {
+                jalaliCal_currentDisplayGregorianDate = new Date(jalaliCal_config.allowedStartDate);
+                 // اگر تاریخ اولیه‌ای از پروژه اصلی موجود است، می‌توانیم آن را به تقویم هم بدهیم
+                if (currentSelectedDate) { // currentSelectedDate مربوط به پروژه اصلی
+                    jalaliCal_currentSelectedGregorianISO = currentSelectedDate;
+                    const parts = currentSelectedDate.split('-');
+                    jalaliCal_currentDisplayGregorianDate = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+                }
+            }
+            jalaliCal_render();
+        }
+        // --- پایان منطق تقویم شمسی ---
+
+
+        // ------------ شروع کد اصلی JavaScript پروژه (بقیه کد شما) ------------
         document.addEventListener('DOMContentLoaded', function() {
             setTimeout(() => {
                 if (welcomeOverlay) welcomeOverlay.classList.add('fade-out');
@@ -471,11 +773,12 @@
                 if (mainContainer) mainContainer.classList.add('visible');
                 setTimeout(() => { 
                      if (welcomeOverlay) welcomeOverlay.style.display = 'none'; 
-                     loadAllItemsView(); // نمایش مستقیم اقلام پس از خوشامدگویی
+                     loadAllItemsView(); 
                 }, 700); 
             }, 1500); 
 
-            generateDateButtons();
+            // generateDateButtons(); // این تابع دیگر لازم نیست و حذف شده یا کامنت می‌شود.
+            jalaliCalendarInit(); // راه‌اندازی تقویم شمسی جدید
         });
 
         function animateViewChange(oldViewElement, newViewElement, displayStyle = 'block', callback) {
@@ -490,7 +793,10 @@
                     else if (callback) callback();
                 }, transitionDuration);
             } else {
-                if (oldViewElement) oldViewElement.style.display = 'none'; 
+                if (oldViewElement) {
+                     oldViewElement.style.display = 'none';
+                     oldViewElement.classList.add('hidden'); // اطمینان از اینکه کلاس hidden هم اعمال شود
+                }
                 if (newViewElement) showNewView();
                 else if (callback) callback();
             }
@@ -522,18 +828,25 @@
             
             clearMessages();
             
-            await animateViewChange(oldActiveSection, newActiveSection, 'block', () => {
-                if (sectionIdToShow === 'all-items-section') setActiveButton(btnAllItems);
-                else if (sectionIdToShow === 'reservation-section') {
-                    setActiveButton(btnReserveItems);
-                    updateReservationSubViewsUI(); 
-                } else if (sectionIdToShow === 'admin-panel-section-dynamic') setActiveButton(null);
+            // استفاده از await برای اطمینان از اتمام انیمیشن قبل از ادامه
+            await new Promise(resolve => {
+                animateViewChange(oldActiveSection, newActiveSection, 'block', resolve);
             });
+
+            if (sectionIdToShow === 'all-items-section') setActiveButton(btnAllItems);
+            else if (sectionIdToShow === 'reservation-section') {
+                setActiveButton(btnReserveItems);
+                updateReservationSubViewsUI(); 
+            } else if (sectionIdToShow === 'admin-panel-section-dynamic') setActiveButton(null);
         }
 
         function loadAllItemsView() {
             if (isAdminLoggedIn) logoutAdmin(false); 
             currentSelectedDate = null;
+            jalaliCal_currentSelectedGregorianISO = null; // پاک کردن انتخاب تقویم
+            if(jalaliCal_currentlySelectedCell) jalaliCal_currentlySelectedCell.classList.remove('jalaliCal-selected-day');
+            jalaliCal_currentlySelectedCell = null;
+            // jalaliCal_render(); // برای نمایش تقویم بدون انتخاب قبلی (اگر در این نما تقویم نمایش داده می‌شود)
             currentCart = {};
             showMainSection('all-items-section');
             fetchAndDisplayAllItems();
@@ -542,18 +855,30 @@
         function loadReservationView() {
             if (isAdminLoggedIn) logoutAdmin(false);
             showMainSection('reservation-section');
-            if (!currentSelectedDate) {
+            if (!currentSelectedDate) { // currentSelectedDate پروژه اصلی
                 currentReservationSubView = ReservationSubView.DATE_SELECTOR;
             } else {
+                // اگر تاریخی از قبل انتخاب شده، تقویم آن را نشان دهد
+                jalaliCal_currentSelectedGregorianISO = currentSelectedDate;
+                const parts = currentSelectedDate.split('-');
+                jalaliCal_currentDisplayGregorianDate = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
                 currentReservationSubView = ReservationSubView.ITEMS_DISPLAY;
             }
+            jalaliCal_render(); // رندر مجدد تقویم برای نمایش تاریخ انتخاب شده یا ماه پیش‌فرض
             updateReservationSubViewsUI();
         }
 
         async function updateReservationSubViewsUI() {
             if (currentReservationSubView === ReservationSubView.DATE_SELECTOR) {
                 if(reservationSectionTitle) reservationSectionTitle.textContent = "۱. انتخاب تاریخ رزرو";
-                if(itemsDisplayWrapper && dateSelectorWrapper) await animateViewChange(itemsDisplayWrapper, dateSelectorWrapper);
+                // اطمینان از اینکه dateSelectorWrapper قبل از itemsDisplayWrapper پردازش می‌شود
+                if(itemsDisplayWrapper && dateSelectorWrapper) {
+                    await new Promise(resolve => animateViewChange(itemsDisplayWrapper, dateSelectorWrapper, 'block', resolve));
+                } else if (dateSelectorWrapper && !itemsDisplayWrapper.classList.contains('hidden')) { // اگر فقط dateSelectorWrapper باید نمایش داده شود
+                     await new Promise(resolve => animateViewChange(null, dateSelectorWrapper, 'block', resolve));
+                }
+
+
                 if (!currentSelectedDate) { 
                      if(dateSelectionPromptMessage) dateSelectionPromptMessage.style.display = 'block';
                 } else {
@@ -561,13 +886,18 @@
                 }
             } else if (currentReservationSubView === ReservationSubView.ITEMS_DISPLAY) {
                 if (!currentSelectedDate) { 
-                    showDateSelectorView();
+                    showDateSelectorView(); // اگر تاریخی نیست، به انتخاب تاریخ برگرد
                     return;
                 }
                 const formattedDate = new Intl.DateTimeFormat('fa-IR', {dateStyle: 'long'}).format(new Date(currentSelectedDate));
                 if(itemsSelectionTitleFixed) itemsSelectionTitleFixed.textContent = `اقلام برای ${formattedDate}`;
                 if(reservationSectionTitle) reservationSectionTitle.textContent = `۲. انتخاب اقلام برای ${formattedDate}`; 
-                if(dateSelectorWrapper && itemsDisplayWrapper) await animateViewChange(dateSelectorWrapper, itemsDisplayWrapper);
+                
+                if(dateSelectorWrapper && itemsDisplayWrapper) {
+                     await new Promise(resolve => animateViewChange(dateSelectorWrapper, itemsDisplayWrapper, 'block', resolve));
+                } else if (itemsDisplayWrapper && !dateSelectorWrapper.classList.contains('hidden')) { // اگر فقط itemsDisplayWrapper باید نمایش داده شود
+                     await new Promise(resolve => animateViewChange(null, itemsDisplayWrapper, 'block', resolve));
+                }
             }
             updateProceedButtonStatus();
         }
@@ -575,40 +905,19 @@
         function showDateSelectorView() {
             currentReservationSubView = ReservationSubView.DATE_SELECTOR;
             updateReservationSubViewsUI();
+            jalaliCal_render(); // رندر تقویم هنگام بازگشت به این نما
         }
         function showItemsDisplayViewAfterDateSelection() { 
             currentReservationSubView = ReservationSubView.ITEMS_DISPLAY;
             updateReservationSubViewsUI();
         }
         
+        /* 
+        // تابع generateDateButtons دیگر مورد نیاز نیست
         function generateDateButtons() {
-            if (!dateGridContainer) return;
-            dateGridContainer.innerHTML = '';
-            let currentDateLoop = new Date(startDate);
-            while (currentDateLoop <= endDate) {
-                const dateButton = document.createElement('button');
-                dateButton.className = 'date-button';
-                const options = { weekday: 'long', day: 'numeric', month: 'long' };
-                dateButton.textContent = new Intl.DateTimeFormat('fa-IR-u-nu-latn', options).format(currentDateLoop);
-                const dateISO = currentDateLoop.toISOString().split('T')[0];
-                dateButton.dataset.date = dateISO;
-
-                if (currentSelectedDate === dateISO) {
-                    dateButton.classList.add('selected');
-                }
-
-                dateButton.onclick = function() {
-                    document.querySelectorAll('.date-button.selected').forEach(btn => btn.classList.remove('selected'));
-                    this.classList.add('selected');
-                    currentSelectedDate = this.dataset.date;
-                    currentCart = {}; 
-                    clearMessages();
-                    fetchItemsForDate(currentSelectedDate);
-                };
-                dateGridContainer.appendChild(dateButton);
-                currentDateLoop.setDate(currentDateLoop.getDate() + 1);
-            }
+            // ... کد قبلی ...
         }
+        */
 
         async function fetchAndDisplayAllItems() { 
             if (!itemsContainer) return;
@@ -624,7 +933,7 @@
             } catch (error) { showError(error.message, itemsContainer); }
         }
 
-        async function fetchItemsForDate(selectedDate) {
+        async function fetchItemsForDate(selectedDate) { // selectedDate باید YYYY-MM-DD باشد
             if (!itemsForReservationContainer) return;
             showLoading(itemsForReservationContainer);
             try {
@@ -637,11 +946,11 @@
                     showItemsDisplayViewAfterDateSelection(); 
                 } else { 
                     throw new Error(data.error || 'پاسخ دریافتی از سرور معتبر نیست.'); 
-                    showDateSelectorView();
+                    showDateSelectorView(); // در صورت خطا به انتخاب تاریخ برگرد
                 }
             } catch (error) { 
                 showError(error.message, itemsForReservationContainer); 
-                showDateSelectorView(); 
+                showDateSelectorView(); // در صورت خطا به انتخاب تاریخ برگرد
             }
         }
         
@@ -669,11 +978,13 @@
                     
                     const currentQuantityInCart = currentCart[item.name] || 0;
                     const safeItemNameId = item.name.replace(/\s+/g, '-').replace(/[()]/g, '');
+                    // اطمینان از اینکه selectedDateForReservation برای ID یکتا است
+                    const uniqueSuffix = selectedDateForReservation ? `-${selectedDateForReservation.replace(/-/g, '')}` : '';
                     reservationControlsHTML = `
                         <div class="reservation-controls">
                             <div class="quantity-selector">
                                 <button onclick="decrementQuantity('${item.name}', ${availableForDate})" ${currentQuantityInCart === 0 ? 'disabled' : ''}>-</button>
-                                <span class="quantity-display" id="qty-display-${safeItemNameId}-${selectedDateForReservation}">${currentQuantityInCart}</span>
+                                <span class="quantity-display" id="qty-display-${safeItemNameId}${uniqueSuffix}">${currentQuantityInCart}</span>
                                 <button onclick="incrementQuantity('${item.name}', ${availableForDate})" ${currentQuantityInCart >= availableForDate || availableForDate === 0 ? 'disabled' : ''}>+</button>
                             </div>
                         </div>`;
@@ -692,13 +1003,15 @@
 
         function updateQuantityDisplay(itemName, quantity) {
             const safeItemNameId = itemName.replace(/\s+/g, '-').replace(/[()]/g, '');
-            const displayElement = document.getElementById(`qty-display-${safeItemNameId}-${currentSelectedDate}`);
+            const uniqueSuffix = currentSelectedDate ? `-${currentSelectedDate.replace(/-/g, '')}` : '';
+            const displayElement = document.getElementById(`qty-display-${safeItemNameId}${uniqueSuffix}`);
             if (displayElement) displayElement.textContent = quantity;
         }
 
         function updateQuantityButtons(itemName, quantity, maxAvailable) {
             const safeItemNameId = itemName.replace(/\s+/g, '-').replace(/[()]/g, '');
-            const selectorElement = document.querySelector(`#qty-display-${safeItemNameId}-${currentSelectedDate}`)?.closest('.quantity-selector');
+            const uniqueSuffix = currentSelectedDate ? `-${currentSelectedDate.replace(/-/g, '')}` : '';
+            const selectorElement = document.querySelector(`#qty-display-${safeItemNameId}${uniqueSuffix}`)?.closest('.quantity-selector');
             if (selectorElement) {
                 const decrementBtn = selectorElement.querySelector('button:first-child');
                 const incrementBtn = selectorElement.querySelector('button:last-child');
@@ -716,7 +1029,6 @@
                 updateQuantityButtons(itemName, currentVal, maxAvailable);
                 updateProceedButtonStatus();
             }
-             console.log("Cart after increment:", currentCart);
         }
 
         function decrementQuantity(itemName, maxAvailable) {
@@ -732,7 +1044,6 @@
                 updateQuantityButtons(itemName, currentVal, maxAvailable);
                 updateProceedButtonStatus();
             }
-            console.log("Cart after decrement:", currentCart);
         }
 
         function updateProceedButtonStatus() {
@@ -801,7 +1112,7 @@
                 alert("سبد خرید شما خالی است. لطفاً ابتدا اقلامی را انتخاب کنید.");
                 return;
             }
-            if (!currentSelectedDate) {
+            if (!currentSelectedDate) { // currentSelectedDate باید فرمت YYYY-MM-DD داشته باشد
                 alert("لطفاً ابتدا یک تاریخ برای رزرو انتخاب کنید.");
                 showDateSelectorView();
                 return;
@@ -823,6 +1134,7 @@
                 alert("خطا: سبد خرید برای ثبت رزرو خالی است.");
                 return;
             }
+            // currentSelectedDate باید فرمت YYYY-MM-DD داشته باشد که توسط تقویم تنظیم می‌شود
             const reservationData = { date: currentSelectedDate, userName: storedUserInfo.name, userPhone: storedUserInfo.phone, items: currentCart };
             if(loadingMessage) loadingMessage.textContent = "درحال ثبت رزرو شما...";
             showLoading(itemsForReservationContainer); 
@@ -830,6 +1142,8 @@
 
             try {
                 const response = await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(reservationData) });
+                // با توجه به mode: 'no-cors', response.ok و response.status در اینجا قابل اعتماد نیستند.
+                // موفقیت را بر اساس عدم بروز خطا در fetch فرض می‌کنیم.
                 hideLoading();
                 if (successMessage) {
                     successMessage.textContent = `رزرو شما برای تاریخ ${new Intl.DateTimeFormat('fa-IR', {dateStyle: 'long'}).format(new Date(currentSelectedDate))} با نام ${storedUserInfo.name} با موفقیت ثبت شد.`;
@@ -837,15 +1151,16 @@
                 }
                 currentCart = {};
                 if(currentSelectedDate) {
+                    // بازخوانی اقلام برای تاریخ فعلی برای نمایش موجودی به‌روز شده
                     fetchItemsForDate(currentSelectedDate); 
                 } else {
                      showDateSelectorView();
                 }
             } catch (error) {
                 hideLoading();
-                showError("خطا در ارسال اطلاعات رزرو: " + error.message, itemsForReservationContainer);
+                showError("خطا در ارسال اطلاعات رزرو: " + error.message + ". ممکن است رزرو شما ثبت نشده باشد. لطفاً دقایقی دیگر مجدد تلاش کنید یا با پشتیبانی تماس بگیرید.", itemsForReservationContainer);
             }
-            updateProceedButtonStatus();
+            updateProceedButtonStatus(); // این باید در هر صورت فراخوانی شود
         }
         
         function logoutAdmin(showAlert = true){
@@ -868,7 +1183,7 @@
 
             adminPanelElement = document.createElement('section');
             adminPanelElement.id = 'admin-panel-section-dynamic'; 
-            adminPanelElement.className = 'hidden'; 
+            adminPanelElement.className = 'hidden'; // باید با hidden شروع شود
 
             adminPanelElement.innerHTML = `
                 <h2 class="section-title">پنل مدیریت سامانه کرایه چی</h2>
@@ -924,7 +1239,8 @@
             });
             reservations.forEach(res => {
                 const row = tbody.insertRow();
-                row.insertCell().textContent = res.reservationDate;
+                // از reservationDateFormatted که در Code.gs فرمت شده استفاده می‌کنیم
+                row.insertCell().textContent = res.reservationDateFormatted || res.reservationDateString; 
                 row.insertCell().textContent = res.userName;
                 row.insertCell().textContent = res.userPhone;
                 const itemsCell = row.insertCell();
