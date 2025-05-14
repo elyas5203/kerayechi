@@ -1,0 +1,992 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>سامانه کرایه چی - رزرو اقلام غدیر</title>
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --font-family-main: 'Vazirmatn', 'Tahoma', sans-serif;
+            
+            /* پالت دسکتاپ (بدون تغییر) */
+            --desktop-bg-image: url('back.jpg');
+            --desktop-primary-color: #1A3A5A; 
+            --desktop-secondary-color: #B08D57; /* طلایی/برنزی ملایم‌تر */
+            --desktop-surface-color: rgba(253, 250, 242, 0.95); 
+            --desktop-text-primary: #2c3e50; 
+            --desktop-text-secondary: #5a6f84;
+            --desktop-border-color: #d1c7b0; 
+
+            /* پالت موبایل جدید (کلاسیک و بزرگسالانه) */
+            --mobile-bg-image: url('back.phone.jpg');
+            --mobile-primary-color: #263238; /* خاکستری بسیار تیره / aproape negru */
+            --mobile-secondary-color: #78552B; /* قهوه‌ای مسی / برنزی */
+            --mobile-surface-color: rgba(245, 245, 245, 0.96); /* خاکستری بسیار روشن و کمی شفاف */
+            --mobile-text-primary: #212121; /* تقریبا مشکی */
+            --mobile-text-secondary: #5f6368; /* خاکستری متوسط */
+            --mobile-border-color: #D0D0D0; /* خاکستری روشن برای حاشیه */
+            
+            --current-primary-color: var(--desktop-primary-color);
+            --current-secondary-color: var(--desktop-secondary-color);
+            --current-surface-color: var(--desktop-surface-color);
+            --current-text-primary: var(--desktop-text-primary);
+            --current-text-secondary: var(--desktop-text-secondary);
+            --current-border-color: var(--desktop-border-color);
+            --current-bg-image: var(--desktop-bg-image);
+
+            --welcome-overlay-text-color: #FFFFFF;
+            --welcome-overlay-text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+            --welcome-text-bg: rgba(0, 0, 0, 0.55); /* پس زمینه برای متن خوشامدگویی */
+
+
+            --border-radius-sm: 5px;
+            --border-radius-md: 10px;
+            --border-radius-lg: 15px;
+
+            --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.06);
+            --shadow-md: 0 5px 10px rgba(0, 0, 0, 0.09);
+            --shadow-lg: 0 12px 25px rgba(0, 0, 0, 0.12);
+            --navbar-height: 65px; 
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: var(--font-family-main); line-height: 1.7; color: var(--current-text-primary);
+            background-image: var(--current-bg-image); 
+            background-size: cover; 
+            background-position: center; 
+            background-attachment: fixed; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            min-height: 100vh; 
+            padding-top: 0; 
+            overflow-x: hidden; 
+            transition: background-image 0.3s ease-in-out, color 0.3s ease-in-out; 
+        }
+
+        #welcome-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: transparent; 
+            color: var(--welcome-overlay-text-color); 
+            display: flex; justify-content: center; align-items: center;
+            z-index: 2000; opacity: 1; transition: opacity 0.7s ease-out;
+        }
+        #welcome-overlay.fade-out { opacity: 0; pointer-events: none; }
+        #welcome-overlay h1 { 
+            font-size: 2em; text-align: center; padding: 20px 35px; font-weight: 700; 
+            background-color: var(--welcome-text-bg); /* پس زمینه برای متن */
+            border-radius: var(--border-radius-md);
+            text-shadow: var(--welcome-overlay-text-shadow);
+        }
+
+        nav.main-nav { 
+            position: fixed; top: 0; left: 0; right: 0; display: flex; 
+            justify-content: space-between; align-items: center; flex-wrap: wrap; 
+            padding: 10px 16px; border-bottom: 1px solid var(--current-border-color);
+            background-color: var(--current-surface-color); 
+            z-index: 1000; box-shadow: var(--shadow-md);
+            height: var(--navbar-height); opacity: 0; transform: translateY(-100%); 
+            transition: opacity 0.5s ease-out 0.5s, transform 0.5s ease-out 0.5s, background-color 0.3s ease-in-out, border-color 0.3s ease-in-out; 
+        }
+        nav.main-nav.visible { opacity: 1; transform: translateY(0); }
+        nav.main-nav .nav-group { display: flex; gap: 10px; }
+        nav.main-nav .nav-group button, nav.main-nav .nav-link-button { 
+            padding: 9px 18px; margin: 0; background-color: var(--current-primary-color); 
+            color: white; border: none; border-radius: var(--border-radius-md); 
+            cursor: pointer; font-size: 0.95em; font-weight: 500; 
+            transition: background-color 0.25s ease, transform 0.2s ease; 
+            box-shadow: var(--shadow-sm); text-decoration: none;
+        }
+        nav.main-nav .nav-group button:hover, nav.main-nav .nav-link-button:hover { 
+            background-color: var(--current-secondary-color); 
+            transform: translateY(-2px); box-shadow: var(--shadow-md); 
+        }
+        nav.main-nav .nav-group button.active { 
+            background-color: var(--current-secondary-color); 
+            color: white; 
+            box-shadow: 0 0 0 2px var(--current-surface-color), 0 0 0 4px var(--current-secondary-color); 
+        }
+        #btn-login-register { background-color: var(--current-secondary-color); }
+        #btn-login-register:hover { background-color: var(--current-primary-color); }
+
+        .main-container {
+            width: 100%; max-width: 1200px; 
+            background-color: var(--current-surface-color); 
+            padding: 25px 20px; border-radius: var(--border-radius-lg); box-shadow: var(--shadow-lg);
+            position: relative; margin-top: calc(var(--navbar-height) + 25px); 
+            opacity: 0; transform: translateY(30px); 
+            transition: opacity 0.6s ease-out 0.7s, transform 0.6s ease-out 0.7s, background-color 0.3s ease-in-out; 
+        }
+        .main-container.visible { opacity: 1; transform: translateY(0); }
+
+        header { text-align: center; margin-bottom: 30px; padding-top:10px; }
+        header h1 { color: var(--current-primary-color); font-size: 2.3em; font-weight: 800; }
+        header h1 small { display: block; font-size: 0.6em; color: var(--current-text-secondary); font-weight: 400; margin-top: 5px; }
+        
+        .section-title { margin-bottom: 25px; color: var(--current-primary-color); font-size: 1.8em; font-weight: 700; padding-bottom: 12px; text-align: center; border-bottom: 1px solid var(--current-border-color); }
+        
+        .reservation-actions-bar {
+            position: sticky; top: var(--navbar-height); 
+            background-color: rgba(250, 250, 250, 0.97); 
+            padding: 12px 18px; border-bottom: 1px solid var(--current-border-color);
+            box-shadow: 0 3px 7px rgba(0,0,0,0.07); z-index: 99; 
+            display: flex; justify-content: space-between; align-items: center;
+            gap: 12px; margin: 0 -20px 20px -20px; 
+        }
+        .reservation-actions-bar button {
+            padding: 9px 14px; font-size: 0.9em; font-weight: 500; border-radius: var(--border-radius-sm);
+            cursor: pointer; transition: background-color 0.2s ease; border: none;
+        }
+        #btn-change-date-sticky { background-color: var(--current-text-secondary); color: white; }
+        #btn-change-date-sticky:hover { background-color: var(--current-primary-color); }
+        #btn-proceed-to-submit-sticky { background-color: var(--current-secondary-color); color: white; }
+        #btn-proceed-to-submit-sticky:hover { opacity:0.85; }
+        #btn-proceed-to-submit-sticky:disabled { background-color: #b0bec5; color:#78909c; cursor: not-allowed; }
+        #items-selection-title-sticky { margin:0; font-size: 1.15em; color: var(--current-primary-color); text-align:center; flex-grow:1; font-weight: 600;}
+
+        #date-selector-wrapper, #items-display-wrapper {
+            opacity: 1; transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out; transform: translateY(0);
+        }
+        #date-selector-wrapper.hidden, #items-display-wrapper.hidden {
+            opacity: 0; pointer-events: none; position: absolute; width: calc(100% - 40px); 
+            transform: translateY(15px); display: none !important; 
+        }
+
+        #date-selector-wrapper {
+            background-color: var(--current-surface-color); padding: 20px; border-radius: var(--border-radius-md); 
+            margin-bottom: 25px; box-shadow: var(--shadow-md); border: 1px solid var(--current-border-color);
+        }
+        #date-selector-wrapper h3 { font-size: 1.3em; color: var(--current-primary-color); margin-bottom: 15px; text-align: center; font-weight: 600; }
+        .date-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; }
+        .date-button { 
+            background-color: white; border: 1px solid var(--current-border-color); 
+            padding: 12px 10px; border-radius: var(--border-radius-sm); cursor: pointer; 
+            text-align: center; font-size: 0.95em; font-weight: 500; color: var(--current-text-primary); 
+            transition: all 0.2s ease-in-out; box-shadow: var(--shadow-sm);
+        }
+        .date-button:hover { background-color: var(--current-secondary-color); color: white; border-color: var(--current-secondary-color); transform: scale(1.03); }
+        .date-button.selected { background-color: var(--current-primary-color); color: white; border-color: var(--current-primary-color); font-weight: 700; box-shadow: 0 0 0 2px var(--current-surface-color), 0 0 0 4px var(--current-primary-color); }
+
+        #items-display-wrapper { margin-top: 0; } 
+        #items-container, #items-for-reservation-container { 
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); 
+            gap: 20px; padding-top: 10px; 
+        } 
+        
+        .item-card { 
+            background-color: white; border: 1px solid var(--current-border-color); 
+            border-radius: var(--border-radius-md); padding: 18px; box-shadow: var(--shadow-md); 
+            display: flex; flex-direction: column; transition: transform 0.25s ease, box-shadow 0.25s ease; 
+            overflow: hidden; 
+        }
+        .item-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-lg); }
+        .item-card img { 
+            width: 100%; height: 170px; 
+            object-fit: contain; 
+            border-radius: var(--border-radius-sm); 
+            margin-bottom: 15px; 
+            background-color: #f8f8f8; 
+        }
+        .item-card h3 { color: var(--current-primary-color); margin-bottom: 10px; font-size: 1.3em; font-weight: 600; line-height: 1.4; min-height: 2.8em; }
+        .item-card .description { font-size: 0.88em; color: var(--current-text-secondary); margin-bottom: 15px; flex-grow: 1; min-height: 50px; }
+        .item-card .quantity-info { font-size: 0.9em; color: var(--current-text-primary); font-weight: 500; margin-bottom: 12px; padding-top: 10px; border-top: 1px dashed #eee; }
+        .item-card .quantity-info span { font-weight: 700; }
+        .item-card .quantity-info.total-stock span { color: var(--current-primary-variant); }
+        .item-card .quantity-info.available-date span { color: var(--current-secondary-color); } 
+        .item-card .quantity-info.unavailable span { color: var(--color-error); }
+        
+        .item-card .reservation-controls { 
+            margin-top: auto; padding-top: 10px; display: flex; align-items: center; justify-content: center;
+        }
+        .item-card .quantity-selector button {
+            background-color: var(--current-primary-color); color: white; border: none;
+            width: 32px; height: 32px; font-size: 1.4em; line-height: 30px; text-align: center;
+            border-radius: 50%; 
+            cursor: pointer; margin: 0 8px;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+        }
+        .item-card .quantity-selector button:hover { background-color: var(--current-secondary-color); }
+        .item-card .quantity-selector button:active { transform: scale(0.9); }
+        .item-card .quantity-selector button:disabled { background-color: #ccc; cursor: not-allowed; opacity: 0.7; }
+        .item-card .quantity-selector .quantity-display {
+            min-width: 35px; text-align: center; font-size: 1.2em; font-weight: 600;
+            padding: 0 8px; color: var(--current-text-primary);
+        }
+        
+        .modal-backdrop {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: var(--modal-backdrop-color); z-index: 1000;
+            display: none; 
+            justify-content: center; align-items: center;
+            opacity: 0; transition: opacity 0.3s ease-in-out;
+        }
+        .modal-backdrop.active { display: flex; opacity: 1; }
+        .modal-content {
+            background-color: var(--current-surface-color); padding: 25px 30px; border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow-lg); width: 90%; max-width: 500px;
+            transform: scale(0.95); transition: transform 0.3s ease-in-out;
+        }
+        .modal-backdrop.active .modal-content { transform: scale(1); }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid var(--current-border-color); }
+        .modal-header h3 { font-size: 1.5em; color: var(--current-primary-color); font-weight: 700; }
+        .modal-close-btn { background: none; border: none; font-size: 1.8em; cursor: pointer; color: var(--current-text-secondary); padding: 0 5px; }
+        .modal-close-btn:hover { color: var(--current-primary-color); }
+        #modal-user-info-form .form-group { margin-bottom: 16px; }
+        #modal-user-info-form .form-group label { display: block; margin-bottom: 6px; font-weight: 500; color: var(--current-text-secondary); font-size: 0.95em; }
+        #modal-user-info-form input[type="text"], #modal-user-info-form input[type="tel"] { width: 100%; padding: 10px; border: 1px solid var(--current-border-color); border-radius: var(--border-radius-sm); font-size: 1em; font-family: var(--font-family-main); }
+        #modal-user-info-form input:focus { border-color: var(--current-primary-color); box-shadow: 0 0 0 2px rgba(44, 62, 80, 0.2); outline: none; }
+        #modal-user-info-form .form-action-buttons { display: flex; justify-content: flex-end; gap:10px; margin-top: 20px; }
+        #modal-user-info-form .form-action-buttons button { padding: 10px 20px; border-radius: var(--border-radius-md); font-size: 1em; font-weight: 600; cursor: pointer; border:none; }
+        #btn-cancel-modal { background-color: var(--current-text-secondary); color:white; }
+        #btn-save-user-info { background-color: var(--current-primary-color); color:white; }
+        #btn-save-user-info:hover { background-color: var(--current-secondary-color); }
+
+        #loading-message, #error-message, #success-message { font-size: 1.1em; padding: 16px; margin: 16px 0; text-align: center; border-radius: var(--border-radius-md); font-weight: 500; }
+        #loading-message { color: var(--current-primary-color); background-color: #eef2ff; border: 1px solid #c7d2fe; }
+        #error-message { color: var(--color-error); background-color: #fee2e2; border: 1px solid #fca5a5; }
+        #success-message { color: var(--color-success-dark); background-color: #d1fae5; border: 1px solid #6ee7b7;}
+        #items-for-reservation-container p.info-message, #date-selector-wrapper p.info-message  { 
+            color: var(--current-text-secondary); background-color: #f9fafb; padding: 16px; 
+            border-radius: var(--border-radius-sm); border: 1px dashed var(--current-border-color); text-align: center;
+        }
+        
+        footer { text-align: center; margin-top: 32px; padding-top: 16px; border-top: 1px solid var(--current-border-color); font-size: 0.9em; color: var(--current-text-secondary); font-weight: 500; }
+        input[type=number]::-webkit-outer-spin-button, input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        input[type=number] { -moz-appearance: textfield; }
+        
+        #admin-panel-section-dynamic { background-color: #f8f9fa; padding: 20px; border-radius: var(--border-radius-md); margin-top: 30px; border: 1px solid var(--current-border-color); }
+        #admin-panel-section-dynamic #admin-controls button { padding: 8px 15px; font-size: 0.9em; margin-left: 10px; background-color: var(--current-primary-color); color:white; border:none; border-radius: var(--border-radius-sm); cursor:pointer; }
+        #admin-panel-section-dynamic #admin-controls button:hover { background-color: var(--current-secondary-color); }
+        #admin-panel-section-dynamic #admin-reservations-container-dynamic table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 0.9em; box-shadow: var(--shadow-sm); }
+        #admin-panel-section-dynamic #admin-reservations-container-dynamic th, 
+        #admin-panel-section-dynamic #admin-reservations-container-dynamic td { border: 1px solid var(--current-border-color); padding: 10px 12px; text-align: right; vertical-align: top; }
+        #admin-panel-section-dynamic #admin-reservations-container-dynamic th { background-color: var(--current-primary-variant); color: var(--color-text-on-primary); font-weight: 600; }
+        #admin-panel-section-dynamic #admin-reservations-container-dynamic tr:nth-child(even) { background-color: #fdfdff; }
+        #admin-panel-section-dynamic #admin-reservations-container-dynamic tr:hover { background-color: #e9ecef; }
+        #admin-panel-section-dynamic .reserved-items-list { list-style: none; padding-right: 0; margin:0; } 
+        #admin-panel-section-dynamic .reserved-items-list li { padding: 2px 0; }
+        #admin-panel-section-dynamic .reserved-items-list strong { color: var(--current-secondary-color); }
+
+        @media (max-width: 767px) { 
+            body {
+                background-image: var(--mobile-bg-image); 
+                --current-primary-color: var(--mobile-primary-color);
+                --current-secondary-color: var(--mobile-secondary-color);
+                --current-surface-color: var(--mobile-surface-color);
+                --current-text-primary: var(--mobile-text-primary);
+                --current-text-secondary: var(--mobile-text-secondary);
+                --current-border-color: var(--mobile-border-color);
+            }
+            nav.main-nav { justify-content: space-around; height: auto; padding-bottom: 8px; /* ارتفاع خودکار برای جا شدن دکمه ها */ }
+            nav.main-nav .nav-group { flex-basis: 100%; justify-content: center; margin-bottom: 8px; }
+            nav.main-nav .nav-link-button { flex-basis: 100%; margin-left: 0; }
+            nav.main-nav .nav-group button, nav.main-nav .nav-link-button { font-size: 0.9em; padding: 10px 12px; }
+            .main-container { margin-top: calc(var(--navbar-height) + 55px); /* افزایش فاصله برای nav دو خطی */ padding: 15px 10px; }
+            header h1 { font-size: 1.8em; }
+            .section-title { font-size: 1.5em; }
+            .reservation-actions-bar {
+                top: var(--navbar-height); flex-direction: column; align-items: stretch; padding: 10px;
+            }
+            .reservation-actions-bar h3 { font-size: 1.05em; margin-bottom: 8px;}
+            #items-for-reservation-container { padding-top: 10px; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); } 
+             .item-card { padding: 12px; }
+             .item-card h3 { font-size: 1.05em; min-height: 2.2em; margin-bottom: 6px;}
+             .item-card img { height: 100px; margin-bottom: 8px; } 
+             .item-card .description { font-size: 0.75em; min-height: 30px; margin-bottom:8px; }
+             .item-card .quantity-info { font-size: 0.8em; margin-bottom: 8px; padding-top: 6px; }
+             .item-card .quantity-selector button { width: 26px; height: 26px; font-size: 1em; line-height: 26px;}
+             .item-card .quantity-selector .quantity-display { font-size: 0.95em; }
+
+            #admin-panel-section-dynamic #admin-reservations-container-dynamic { overflow-x: auto; }
+            #admin-panel-section-dynamic #admin-reservations-container-dynamic table { min-width: 600px; }
+        }
+        @media (min-width: 480px) and (max-width: 767px) { 
+             nav.main-nav { height: var(--navbar-height); /* بازگشت به ارتفاع ثابت */}
+             nav.main-nav .nav-group { flex-basis: auto; margin-bottom: 0; }
+             nav.main-nav .nav-link-button { flex-basis: auto; }
+             .main-container { margin-top: calc(var(--navbar-height) + 10px); }
+        }
+
+        @media (min-width: 768px) { 
+            body { padding-top: 0; } 
+            nav.main-nav { position: static; height: auto; margin-bottom: 24px; padding: 12px 0; } 
+            .main-container { margin-top: 20px; }
+            .reservation-actions-bar { top: 0; margin: 0 0 15px 0; border-radius: var(--border-radius-sm); } 
+            #items-for-reservation-container { padding-top: 10px; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); }
+            .main-container { padding: 24px 32px; }
+            header h1 { font-size: 2.2em; }
+            nav.main-nav .nav-group button, nav.main-nav .nav-link-button { padding: 12px 20px; font-size: 1em; }
+            .section-title { font-size: 1.9em; }
+            #date-selector-wrapper h3 { font-size: 1.4em; }
+            .date-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); }
+            .date-button { font-size: 0.95em; }
+            .reservation-actions-bar button { flex-grow: 0; }
+            #items-container { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+            .item-card { padding: 20px; } .item-card img { height: 200px; } .item-card h3 { font-size: 1.35em; }
+            .item-card .description { font-size: 0.9em; } .item-card .quantity-info { font-size: 1em; }
+        }
+        @media (min-width: 992px) { 
+            .main-container { padding: 32px 40px; }
+            header h1 { font-size: 2.5em; }
+            #items-container, #items-for-reservation-container { grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); }
+            .item-card img { height: 220px; }
+        }
+
+    </style>
+</head>
+<body>
+    <div id="welcome-overlay">
+        <h1>به کرایه چی دبستان خوش آمدید.</h1>
+    </div>
+
+    <nav class="main-nav">
+        <div class="nav-group"> 
+            <button id="btn-all-items" onclick="loadAllItemsView()">نمایش همه اقلام</button>
+            <button id="btn-reserve-items" onclick="loadReservationView()">رزرو لوازم</button>
+        </div>
+        <button id="btn-login-register" class="nav-link-button" onclick="openUserInfoModal()">ورود / ثبت اطلاعات</button>
+    </nav>
+
+    <div class="main-container">
+        <header>
+            <h1>سامانه کرایه چی <small>(رزرو اقلام ویژه جشن بزرگ غدیر)</small></h1>
+        </header>
+        
+        <main id="main-content-area">
+            <section id="all-items-section" style="display:none;">
+                <h2 class="section-title">لیست کل اقلام موجود در انبار</h2>
+                <div id="items-container"></div>
+            </section>
+
+            <section id="reservation-section" class="hidden">
+                <h2 class="section-title" id="reservation-section-title">۱. انتخاب تاریخ رزرو</h2>
+                
+                <div id="date-selector-wrapper" class="hidden">
+                    <div class="date-grid" id="date-grid-container"></div>
+                    <p class="info-message" id="date-selection-prompt-message" style="display:none; margin-top:15px;">لطفاً یک تاریخ از لیست بالا انتخاب کنید.</p>
+                </div>
+
+                <div id="items-display-wrapper" class="hidden">
+                     <div class="reservation-actions-bar">
+                        <button id="btn-change-date-sticky" onclick="showDateSelectorView()">تغییر تاریخ</button>
+                        <h3 id="items-selection-title-sticky">انتخاب اقلام</h3>
+                        <button id="btn-proceed-to-submit-sticky" onclick="proceedToFinalSubmit()" disabled>نهایی کردن رزرو</button>
+                    </div>
+                    <div id="items-for-reservation-container">
+                    </div>
+                </div>
+            </section>
+            
+            <div id="loading-message" style="display: none;">درحال پردازش...</div>
+            <div id="error-message" style="display: none;">خطایی رخ داده است.</div>
+            <div id="success-message" style="display: none;">رزرو شما با موفقیت ثبت شد!</div>
+        </main>
+        
+        <footer>
+            <p>© ۱۴۰۴ - کلیه حقوق این سامانه متعلق به مجموعه کرایه چی می‌باشد.</p>
+        </footer>
+    </div>
+
+    <div id="user-info-modal" class="modal-backdrop">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-title">ورود / ثبت اطلاعات تماس</h3>
+                <button class="modal-close-btn" onclick="closeUserInfoModal()">×</button>
+            </div>
+            <form id="modal-user-info-form" onsubmit="handleModalFormSubmit(event)">
+                <div class="form-group">
+                    <label for="modal-user-name">نام و نام خانوادگی کامل:</label>
+                    <input type="text" id="modal-user-name" name="modalUserName" required>
+                </div>
+                <div class="form-group">
+                    <label for="modal-user-phone">شماره تلفن:</label>
+                    <input type="text" id="modal-user-phone" name="modalUserPhone" placeholder="کاربر: 09xxxxxxxxxx | ادمین: پسورد" required> 
+                </div>
+                <div class="form-action-buttons">
+                    <button type="button" id="btn-cancel-modal" onclick="closeUserInfoModal()">انصراف</button>
+                    <button type="submit" id="btn-save-user-info">ورود / ذخیره اطلاعات</button>
+                </div>
+                <p id="modal-form-error" style="color: var(--color-error); font-size: 0.9em; margin-top: 10px; text-align:right; display:none;"></p>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // ------------ شروع کد کامل JavaScript ------------
+        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzwzkNq3mRijyhUS35igqDnJpj9UFT7AXe69cG328sFNi-mVVZzCfKDmof5Ds8bADIk/exec';
+        const ADMIN_USER = "admin";
+        const ADMIN_PASS = "kerayechi110";
+
+        const mainElement = document.getElementById('main-content-area');
+        const allItemsSection = document.getElementById('all-items-section');
+        const reservationSection = document.getElementById('reservation-section');
+        const reservationSectionTitle = document.getElementById('reservation-section-title');
+        const dateSelectorWrapper = document.getElementById('date-selector-wrapper');
+        const dateSelectionPromptMessage = document.getElementById('date-selection-prompt-message');
+        const itemsDisplayWrapper = document.getElementById('items-display-wrapper');
+        const itemsSelectionTitleFixed = document.getElementById('items-selection-title-sticky');
+        const itemsContainer = document.getElementById('items-container');
+        const itemsForReservationContainer = document.getElementById('items-for-reservation-container');
+        const dateGridContainer = document.getElementById('date-grid-container');
+        const btnProceedToSubmitSticky = document.getElementById('btn-proceed-to-submit-sticky');
+        const loadingMessage = document.getElementById('loading-message');
+        const errorMessage = document.getElementById('error-message');
+        const successMessage = document.getElementById('success-message');
+        const btnAllItems = document.getElementById('btn-all-items');
+        const btnReserveItems = document.getElementById('btn-reserve-items');
+        const btnLoginRegister = document.getElementById('btn-login-register');
+        const userInfoModal = document.getElementById('user-info-modal');
+        const modalUserInfoForm = document.getElementById('modal-user-info-form');
+        const modalUserNameInput = document.getElementById('modal-user-name');
+        const modalUserPhoneInput = document.getElementById('modal-user-phone');
+        const modalFormError = document.getElementById('modal-form-error');
+        const modalTitle = document.getElementById('modal-title');
+        const welcomeOverlay = document.getElementById('welcome-overlay');
+        const mainNav = document.querySelector('nav.main-nav');
+        const mainContainer = document.querySelector('.main-container');
+
+
+        const startDate = new Date(2025, 5, 4); 
+        const endDate = new Date(2025, 6, 1);   
+
+        let currentSelectedDate = null;
+        let currentCart = {}; 
+        let isAdminLoggedIn = false;
+        let storedUserInfo = { name: null, phone: null };
+
+        const ReservationSubView = {
+            DATE_SELECTOR: 'date_selector',
+            ITEMS_DISPLAY: 'items_display'
+        };
+        let currentReservationSubView = ReservationSubView.DATE_SELECTOR;
+        let adminPanelElement = null; 
+
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(() => {
+                if (welcomeOverlay) welcomeOverlay.classList.add('fade-out');
+                if (mainNav) mainNav.classList.add('visible');
+                if (mainContainer) mainContainer.classList.add('visible');
+                setTimeout(() => { 
+                     if (welcomeOverlay) welcomeOverlay.style.display = 'none'; 
+                     loadAllItemsView(); // نمایش مستقیم اقلام پس از خوشامدگویی
+                }, 700); 
+            }, 1500); 
+
+            generateDateButtons();
+        });
+
+        function animateViewChange(oldViewElement, newViewElement, displayStyle = 'block', callback) {
+            const transitionDuration = 300; 
+            if (oldViewElement && oldViewElement.style.display !== 'none' && !oldViewElement.classList.contains('hidden')) {
+                oldViewElement.style.opacity = '0';
+                oldViewElement.style.transform = 'translateY(15px)';
+                setTimeout(() => {
+                    oldViewElement.style.display = 'none';
+                    oldViewElement.classList.add('hidden'); 
+                    if (newViewElement) showNewView();
+                    else if (callback) callback();
+                }, transitionDuration);
+            } else {
+                if (oldViewElement) oldViewElement.style.display = 'none'; 
+                if (newViewElement) showNewView();
+                else if (callback) callback();
+            }
+
+            function showNewView() {
+                if (!newViewElement) { 
+                    if (callback) callback();
+                    return;
+                }
+                newViewElement.classList.remove('hidden'); 
+                newViewElement.style.display = displayStyle;
+                newViewElement.style.opacity = '0';
+                newViewElement.style.transform = 'translateY(15px)';
+                requestAnimationFrame(() => { 
+                    newViewElement.style.opacity = '1';
+                    newViewElement.style.transform = 'translateY(0)';
+                    if (callback) setTimeout(callback, transitionDuration); 
+                });
+            }
+        }
+        
+        async function showMainSection(sectionIdToShow) {
+            const sections = [allItemsSection, reservationSection, adminPanelElement].filter(s => s); 
+            let newActiveSection = sections.find(s => s.id === sectionIdToShow || (adminPanelElement && s.id === adminPanelElement.id && sectionIdToShow === 'admin-panel-section-dynamic'));
+            let oldActiveSection = sections.find(s => {
+                return s && s.style.display !== 'none' && !s.classList.contains('hidden') && 
+                       (!newActiveSection || s.id !== newActiveSection.id);
+            });
+            
+            clearMessages();
+            
+            await animateViewChange(oldActiveSection, newActiveSection, 'block', () => {
+                if (sectionIdToShow === 'all-items-section') setActiveButton(btnAllItems);
+                else if (sectionIdToShow === 'reservation-section') {
+                    setActiveButton(btnReserveItems);
+                    updateReservationSubViewsUI(); 
+                } else if (sectionIdToShow === 'admin-panel-section-dynamic') setActiveButton(null);
+            });
+        }
+
+        function loadAllItemsView() {
+            if (isAdminLoggedIn) logoutAdmin(false); 
+            currentSelectedDate = null;
+            currentCart = {};
+            showMainSection('all-items-section');
+            fetchAndDisplayAllItems();
+        }
+
+        function loadReservationView() {
+            if (isAdminLoggedIn) logoutAdmin(false);
+            showMainSection('reservation-section');
+            if (!currentSelectedDate) {
+                currentReservationSubView = ReservationSubView.DATE_SELECTOR;
+            } else {
+                currentReservationSubView = ReservationSubView.ITEMS_DISPLAY;
+            }
+            updateReservationSubViewsUI();
+        }
+
+        async function updateReservationSubViewsUI() {
+            if (currentReservationSubView === ReservationSubView.DATE_SELECTOR) {
+                if(reservationSectionTitle) reservationSectionTitle.textContent = "۱. انتخاب تاریخ رزرو";
+                if(itemsDisplayWrapper && dateSelectorWrapper) await animateViewChange(itemsDisplayWrapper, dateSelectorWrapper);
+                if (!currentSelectedDate) { 
+                     if(dateSelectionPromptMessage) dateSelectionPromptMessage.style.display = 'block';
+                } else {
+                    if(dateSelectionPromptMessage) dateSelectionPromptMessage.style.display = 'none';
+                }
+            } else if (currentReservationSubView === ReservationSubView.ITEMS_DISPLAY) {
+                if (!currentSelectedDate) { 
+                    showDateSelectorView();
+                    return;
+                }
+                const formattedDate = new Intl.DateTimeFormat('fa-IR', {dateStyle: 'long'}).format(new Date(currentSelectedDate));
+                if(itemsSelectionTitleFixed) itemsSelectionTitleFixed.textContent = `اقلام برای ${formattedDate}`;
+                if(reservationSectionTitle) reservationSectionTitle.textContent = `۲. انتخاب اقلام برای ${formattedDate}`; 
+                if(dateSelectorWrapper && itemsDisplayWrapper) await animateViewChange(dateSelectorWrapper, itemsDisplayWrapper);
+            }
+            updateProceedButtonStatus();
+        }
+
+        function showDateSelectorView() {
+            currentReservationSubView = ReservationSubView.DATE_SELECTOR;
+            updateReservationSubViewsUI();
+        }
+        function showItemsDisplayViewAfterDateSelection() { 
+            currentReservationSubView = ReservationSubView.ITEMS_DISPLAY;
+            updateReservationSubViewsUI();
+        }
+        
+        function generateDateButtons() {
+            if (!dateGridContainer) return;
+            dateGridContainer.innerHTML = '';
+            let currentDateLoop = new Date(startDate);
+            while (currentDateLoop <= endDate) {
+                const dateButton = document.createElement('button');
+                dateButton.className = 'date-button';
+                const options = { weekday: 'long', day: 'numeric', month: 'long' };
+                dateButton.textContent = new Intl.DateTimeFormat('fa-IR-u-nu-latn', options).format(currentDateLoop);
+                const dateISO = currentDateLoop.toISOString().split('T')[0];
+                dateButton.dataset.date = dateISO;
+
+                if (currentSelectedDate === dateISO) {
+                    dateButton.classList.add('selected');
+                }
+
+                dateButton.onclick = function() {
+                    document.querySelectorAll('.date-button.selected').forEach(btn => btn.classList.remove('selected'));
+                    this.classList.add('selected');
+                    currentSelectedDate = this.dataset.date;
+                    currentCart = {}; 
+                    clearMessages();
+                    fetchItemsForDate(currentSelectedDate);
+                };
+                dateGridContainer.appendChild(dateButton);
+                currentDateLoop.setDate(currentDateLoop.getDate() + 1);
+            }
+        }
+
+        async function fetchAndDisplayAllItems() { 
+            if (!itemsContainer) return;
+            showLoading(itemsContainer);
+            try {
+                const response = await fetch(`${WEB_APP_URL}?action=getItems`);
+                if (!response.ok) throw new Error(`خطا در سرور: ${response.status}`);
+                const data = await response.json();
+                hideLoading();
+                if (data.success && data.items) {
+                    displayItems(data.items, itemsContainer, false); 
+                } else { throw new Error(data.error || 'پاسخ دریافتی از سرور معتبر نیست.'); }
+            } catch (error) { showError(error.message, itemsContainer); }
+        }
+
+        async function fetchItemsForDate(selectedDate) {
+            if (!itemsForReservationContainer) return;
+            showLoading(itemsForReservationContainer);
+            try {
+                const response = await fetch(`${WEB_APP_URL}?action=getItemsForDate&date=${selectedDate}`);
+                if (!response.ok) throw new Error(`خطا در سرور: ${response.status}`);
+                const data = await response.json();
+                hideLoading();
+                if (data.success && data.items) {
+                    displayItems(data.items, itemsForReservationContainer, true, selectedDate);
+                    showItemsDisplayViewAfterDateSelection(); 
+                } else { 
+                    throw new Error(data.error || 'پاسخ دریافتی از سرور معتبر نیست.'); 
+                    showDateSelectorView();
+                }
+            } catch (error) { 
+                showError(error.message, itemsForReservationContainer); 
+                showDateSelectorView(); 
+            }
+        }
+        
+        function displayItems(items, containerElement, isReservationMode, selectedDateForReservation = null) {
+            if (!containerElement) return;
+            containerElement.innerHTML = '';
+            if (items.length === 0) {
+                containerElement.innerHTML = `<p class="info-message">در حال حاضر هیچ قلمی برای نمایش وجود ندارد${isReservationMode ? ' در تاریخ انتخابی' : ''}.</p>`;
+                if (isReservationMode) updateProceedButtonStatus();
+                return;
+            }
+             items.forEach(item => {
+                const itemCard = document.createElement('div');
+                itemCard.className = 'item-card';
+                const imageUrl = item.imageName;
+                const availableForDate = isReservationMode ? (item.availableForDate || 0) : null;
+                const totalStock = item.totalQuantity;
+                let quantityInfoHTML = `<div class="quantity-info total-stock">موجودی کل انبار: <span>${totalStock}</span> عدد</div>`;
+                let reservationControlsHTML = '';
+                if (isReservationMode) {
+                    quantityInfoHTML = `
+                        <div class="quantity-info available-date ${availableForDate > 0 ? '' : 'unavailable'}">
+                            موجودی در تاریخ ${new Intl.DateTimeFormat('fa-IR', { day: 'numeric', month: 'long'}).format(new Date(selectedDateForReservation))}: <span>${availableForDate}</span> عدد
+                        </div>`;
+                    
+                    const currentQuantityInCart = currentCart[item.name] || 0;
+                    const safeItemNameId = item.name.replace(/\s+/g, '-').replace(/[()]/g, '');
+                    reservationControlsHTML = `
+                        <div class="reservation-controls">
+                            <div class="quantity-selector">
+                                <button onclick="decrementQuantity('${item.name}', ${availableForDate})" ${currentQuantityInCart === 0 ? 'disabled' : ''}>-</button>
+                                <span class="quantity-display" id="qty-display-${safeItemNameId}-${selectedDateForReservation}">${currentQuantityInCart}</span>
+                                <button onclick="incrementQuantity('${item.name}', ${availableForDate})" ${currentQuantityInCart >= availableForDate || availableForDate === 0 ? 'disabled' : ''}>+</button>
+                            </div>
+                        </div>`;
+                }
+                itemCard.innerHTML = `
+                    <img src="${imageUrl}" alt="${item.name}" onerror="this.onerror=null; this.src='placeholder.jpg'; this.alt='تصویر موجود نیست';">
+                    <h3>${item.name}</h3>
+                    <p class="description">${item.description || 'توضیحات ثبت نشده است.'}</p>
+                    ${quantityInfoHTML}
+                    ${reservationControlsHTML}
+                `;
+                containerElement.appendChild(itemCard);
+            });
+            if (isReservationMode) updateProceedButtonStatus();
+        }
+
+        function updateQuantityDisplay(itemName, quantity) {
+            const safeItemNameId = itemName.replace(/\s+/g, '-').replace(/[()]/g, '');
+            const displayElement = document.getElementById(`qty-display-${safeItemNameId}-${currentSelectedDate}`);
+            if (displayElement) displayElement.textContent = quantity;
+        }
+
+        function updateQuantityButtons(itemName, quantity, maxAvailable) {
+            const safeItemNameId = itemName.replace(/\s+/g, '-').replace(/[()]/g, '');
+            const selectorElement = document.querySelector(`#qty-display-${safeItemNameId}-${currentSelectedDate}`)?.closest('.quantity-selector');
+            if (selectorElement) {
+                const decrementBtn = selectorElement.querySelector('button:first-child');
+                const incrementBtn = selectorElement.querySelector('button:last-child');
+                if (decrementBtn) decrementBtn.disabled = (quantity <= 0);
+                if (incrementBtn) incrementBtn.disabled = (quantity >= maxAvailable || maxAvailable === 0);
+            }
+        }
+        
+        function incrementQuantity(itemName, maxAvailable) {
+            let currentVal = currentCart[itemName] || 0;
+            if (currentVal < maxAvailable) {
+                currentVal++;
+                currentCart[itemName] = currentVal;
+                updateQuantityDisplay(itemName, currentVal);
+                updateQuantityButtons(itemName, currentVal, maxAvailable);
+                updateProceedButtonStatus();
+            }
+             console.log("Cart after increment:", currentCart);
+        }
+
+        function decrementQuantity(itemName, maxAvailable) {
+            let currentVal = currentCart[itemName] || 0;
+            if (currentVal > 0) {
+                currentVal--;
+                if (currentVal === 0) {
+                    delete currentCart[itemName];
+                } else {
+                    currentCart[itemName] = currentVal;
+                }
+                updateQuantityDisplay(itemName, currentVal);
+                updateQuantityButtons(itemName, currentVal, maxAvailable);
+                updateProceedButtonStatus();
+            }
+            console.log("Cart after decrement:", currentCart);
+        }
+
+        function updateProceedButtonStatus() {
+            const cartIsEmpty = Object.keys(currentCart).length === 0 || Object.values(currentCart).every(qty => qty === 0);
+            if (btnProceedToSubmitSticky) btnProceedToSubmitSticky.disabled = cartIsEmpty;
+        }
+        
+        function openUserInfoModal(isForReservation = false) {
+            if (!userInfoModal || !modalTitle || !modalUserNameInput || !modalUserPhoneInput || !modalUserInfoForm || !modalFormError) return;
+            modalTitle.textContent = isForReservation ? "تکمیل اطلاعات برای ثبت رزرو" : "ورود / ثبت اطلاعات تماس";
+            modalUserNameInput.value = storedUserInfo.name || '';
+            modalUserPhoneInput.value = storedUserInfo.phone || '';
+            userInfoModal.classList.add('active');
+            modalUserInfoForm.dataset.isForReservation = isForReservation.toString(); 
+            modalFormError.style.display = 'none';
+            modalUserPhoneInput.removeAttribute('pattern'); 
+            modalUserPhoneInput.placeholder = "کاربر: 09xxxxxxxxxx | ادمین: پسورد";
+        }
+        function closeUserInfoModal() {
+            if (!userInfoModal || !modalUserInfoForm) return;
+            userInfoModal.classList.remove('active');
+        }
+        async function handleModalFormSubmit(event) {
+            event.preventDefault();
+            if (!modalFormError || !modalUserNameInput || !modalUserPhoneInput || !btnLoginRegister || !modalUserInfoForm) return;
+            modalFormError.style.display = 'none';
+            const name = modalUserNameInput.value.trim();
+            const phone = modalUserPhoneInput.value.trim();
+
+            if (!name || !phone) {
+                modalFormError.textContent = "لطفاً تمام فیلدها را پر کنید.";
+                modalFormError.style.display = 'block';
+                return;
+            }
+
+            if (name === ADMIN_USER && phone === ADMIN_PASS) {
+                isAdminLoggedIn = true;
+                closeUserInfoModal();
+                createAdminPanel(); 
+                showMainSection('admin-panel-section-dynamic');
+                fetchAdminAllReservations();
+                if(btnLoginRegister) btnLoginRegister.textContent = `خوش آمدید، ${ADMIN_USER}`;
+                return;
+            }
+            
+            const phonePattern = /^09[0-9]{9}$/;
+            if (!phonePattern.test(phone)) {
+                modalFormError.textContent = "فرمت شماره تلفن صحیح نیست (مثال: 09123456789).";
+                modalFormError.style.display = 'block';
+                return;
+            }
+
+            storedUserInfo.name = name;
+            storedUserInfo.phone = phone;
+            if(btnLoginRegister) btnLoginRegister.textContent = `سلام، ${name.split(' ')[0]}`;
+            closeUserInfoModal();
+            alert("اطلاعات شما با موفقیت ذخیره شد.");
+
+            if (modalUserInfoForm.dataset.isForReservation === 'true') {
+                await finalSubmitReservationProcess();
+            }
+        }
+
+        function proceedToFinalSubmit() { 
+            if (Object.keys(currentCart).length === 0 || Object.values(currentCart).every(qty => qty === 0)) {
+                alert("سبد خرید شما خالی است. لطفاً ابتدا اقلامی را انتخاب کنید.");
+                return;
+            }
+            if (!currentSelectedDate) {
+                alert("لطفاً ابتدا یک تاریخ برای رزرو انتخاب کنید.");
+                showDateSelectorView();
+                return;
+            }
+            if (!storedUserInfo.name || !storedUserInfo.phone) {
+                openUserInfoModal(true); 
+            } else {
+                finalSubmitReservationProcess(); 
+            }
+        }
+
+        async function finalSubmitReservationProcess() {
+            if (!storedUserInfo.name || !storedUserInfo.phone) {
+                alert("خطا: اطلاعات کاربر برای ثبت رزرو موجود نیست.");
+                openUserInfoModal(true);
+                return;
+            }
+             if (Object.keys(currentCart).length === 0 || Object.values(currentCart).every(qty => qty === 0)) {
+                alert("خطا: سبد خرید برای ثبت رزرو خالی است.");
+                return;
+            }
+            const reservationData = { date: currentSelectedDate, userName: storedUserInfo.name, userPhone: storedUserInfo.phone, items: currentCart };
+            if(loadingMessage) loadingMessage.textContent = "درحال ثبت رزرو شما...";
+            showLoading(itemsForReservationContainer); 
+            if(btnProceedToSubmitSticky) btnProceedToSubmitSticky.disabled = true;
+
+            try {
+                const response = await fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(reservationData) });
+                hideLoading();
+                if (successMessage) {
+                    successMessage.textContent = `رزرو شما برای تاریخ ${new Intl.DateTimeFormat('fa-IR', {dateStyle: 'long'}).format(new Date(currentSelectedDate))} با نام ${storedUserInfo.name} با موفقیت ثبت شد.`;
+                    successMessage.style.display = 'block';
+                }
+                currentCart = {};
+                if(currentSelectedDate) {
+                    fetchItemsForDate(currentSelectedDate); 
+                } else {
+                     showDateSelectorView();
+                }
+            } catch (error) {
+                hideLoading();
+                showError("خطا در ارسال اطلاعات رزرو: " + error.message, itemsForReservationContainer);
+            }
+            updateProceedButtonStatus();
+        }
+        
+        function logoutAdmin(showAlert = true){
+            isAdminLoggedIn = false;
+            storedUserInfo = {name:null, phone:null};
+            if(btnLoginRegister) btnLoginRegister.textContent = "ورود / ثبت اطلاعات";
+            if (adminPanelElement && mainElement && mainElement.contains(adminPanelElement)) { 
+                mainElement.removeChild(adminPanelElement);
+                adminPanelElement = null;
+            }
+            loadAllItemsView(); 
+            if(showAlert) alert("شما از پنل مدیریت خارج شدید.");
+        }
+        
+        function createAdminPanel() {
+            if (document.getElementById('admin-panel-section-dynamic')) {
+                adminPanelElement = document.getElementById('admin-panel-section-dynamic'); 
+                return;
+            }
+
+            adminPanelElement = document.createElement('section');
+            adminPanelElement.id = 'admin-panel-section-dynamic'; 
+            adminPanelElement.className = 'hidden'; 
+
+            adminPanelElement.innerHTML = `
+                <h2 class="section-title">پنل مدیریت سامانه کرایه چی</h2>
+                <div id="admin-controls" style="margin-bottom: 20px; text-align: left;">
+                    <button onclick="fetchAdminAllReservations()">بارگذاری مجدد رزروها</button>
+                    <button onclick="logoutAdmin()">خروج از پنل</button>
+                </div>
+                <div id="admin-reservations-container-dynamic">
+                    <p class="info-message">درحال بارگذاری لیست رزروها...</p>
+                </div>
+            `;
+            if (mainElement) mainElement.appendChild(adminPanelElement);
+        }
+
+        async function fetchAdminAllReservations() { 
+            if (!isAdminLoggedIn) return;
+            if (!adminPanelElement) createAdminPanel(); 
+            
+            const adminReservationsContainerDynamic = document.getElementById('admin-reservations-container-dynamic');
+            if (!adminReservationsContainerDynamic) return; 
+
+            showLoading(adminReservationsContainerDynamic);
+            try {
+                const response = await fetch(`${WEB_APP_URL}?action=getAllReservationsForAdmin&secret=${ADMIN_PASS}`);
+                if (!response.ok) throw new Error(`خطا در سرور: ${response.status}`);
+                const data = await response.json();
+                hideLoading();
+                if (data.success && data.reservations) {
+                    displayAdminReservations(data.reservations, adminReservationsContainerDynamic);
+                } else {
+                    throw new Error(data.error || 'پاسخ دریافتی برای لیست رزروها معتبر نیست.');
+                }
+            } catch (error) {
+                showError("خطا در بارگذاری لیست رزروها: " + error.message, adminReservationsContainerDynamic);
+            }
+        }
+        function displayAdminReservations(reservations, container) { 
+            if (!container) return;
+             container.innerHTML = '';
+            if (reservations.length === 0) {
+                container.innerHTML = '<p class="info-message">در حال حاضر هیچ رزروی ثبت نشده است.</p>';
+                return;
+            }
+            const table = document.createElement('table');
+            const thead = table.createTHead();
+            const tbody = table.createTBody();
+            const headerRow = thead.insertRow();
+            const headers = ["تاریخ رزرو", "نام کاربر", "تلفن", "اقلام رزرو شده", "زمان ثبت"];
+            headers.forEach(text => {
+                const th = document.createElement('th');
+                th.textContent = text;
+                headerRow.appendChild(th);
+            });
+            reservations.forEach(res => {
+                const row = tbody.insertRow();
+                row.insertCell().textContent = res.reservationDate;
+                row.insertCell().textContent = res.userName;
+                row.insertCell().textContent = res.userPhone;
+                const itemsCell = row.insertCell();
+                const ul = document.createElement('ul');
+                ul.className = 'reserved-items-list';
+                if (typeof res.reservedItems === 'object' && res.reservedItems !== null) {
+                    for (const itemName in res.reservedItems) {
+                        const li = document.createElement('li');
+                        li.innerHTML = `${itemName}: <strong>${res.reservedItems[itemName]}</strong> عدد`;
+                        ul.appendChild(li);
+                    }
+                } else {
+                    const li = document.createElement('li');
+                    li.textContent = res.rawReservedItemsString || "اطلاعات اقلام نامشخص";
+                    ul.appendChild(li);
+                }
+                itemsCell.appendChild(ul);
+                row.insertCell().textContent = res.timestamp;
+            });
+            container.appendChild(table);
+        }
+
+        function showLoading(container) { 
+            if (container && typeof container.innerHTML !== 'undefined') container.innerHTML = ''; 
+            if (loadingMessage) loadingMessage.style.display = 'block';
+            if (errorMessage) errorMessage.style.display = 'none';
+            if (successMessage) successMessage.style.display = 'none';
+        }
+        function hideLoading() { 
+            if (loadingMessage) loadingMessage.style.display = 'none'; 
+        }
+        function showError(message, containerIfAny) { 
+            hideLoading();
+            const adminResContainer = document.getElementById('admin-reservations-container-dynamic'); 
+            if (containerIfAny && typeof containerIfAny.innerHTML !== 'undefined') {
+                if (containerIfAny === itemsForReservationContainer || containerIfAny === adminResContainer || containerIfAny === itemsContainer ) {
+                     containerIfAny.innerHTML = `<p class="info-message" style="color:var(--color-error); background-color: #fee2e2;">خطا: ${message}</p>`;
+                } else { 
+                     if (errorMessage) {
+                         errorMessage.textContent = `خطا: ${message}`;
+                         errorMessage.style.display = 'block';
+                     }
+                }
+            } else if (errorMessage) {
+                 errorMessage.textContent = `خطا: ${message}`;
+                 errorMessage.style.display = 'block';
+            }
+            if (successMessage) successMessage.style.display = 'none';
+        }
+         function clearMessages() { 
+            if (loadingMessage) loadingMessage.style.display = 'none';
+            if (errorMessage) errorMessage.style.display = 'none';
+            if (successMessage) successMessage.style.display = 'none';
+        }
+        function setActiveButton(activeButton) {
+            if (btnAllItems) btnAllItems.classList.remove('active');
+            if (btnReserveItems) btnReserveItems.classList.remove('active');
+            if (activeButton) {
+                activeButton.classList.add('active');
+            }
+        }
+        // ------------ پایان کد کامل JavaScript ------------
+    </script>
+</body>
+</html>
